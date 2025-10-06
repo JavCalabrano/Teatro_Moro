@@ -8,6 +8,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -17,780 +19,568 @@ public class Teatro_Moro {
     /**
      * @param args the command line arguments
      */
+    //Variables estaticas - para modificaciones mayores
+    
+     
+    static String teatroNombre = "Teatro Moro", inputString, nombre;
+    static int valorGeneral=5000, valorVip=25000, valorPlatea=10000;    //valores
+    static int nGeneral=60, nVip=20, nPlatea=40;                        //numero de entradas disponibles
+    
+    static String nombreCliente[] = new String[120]; //arreglos para almacenar datos de ventas mas permanentes    
+    static String tipoAsiento[] = new String[120];
+    static String codigoAsiento[] = new String[120];
+    static boolean comprado[] = new boolean[120];
+    static int valorPagado[] = new int[120];
+    
+    static List<String> ventas = new ArrayList<>();
+    
+    static boolean ciclo=false, encontrado=false;
+    static int nro, menu, recaudacion=0; //eleccion del switch case
+    static double total;
+    
+    static String codigo,  sectorTxt;
+    static int inputInt, filaNum, valor, cantidad,  pago, timerIndice;
+    static double descuento, descuentoPromo, descuentoEstudiante=0.1, descuentoTEdad=0.15, vuelto;
+    static char charFila;
+    
+    static Scanner inputTc = new Scanner(System.in);//Activar el teclado     
+    static Timer[] timer = new Timer[10];
+    
+    //Sector para declarar las funciones y aplicarlas en el main
+    
+    
+    
     public static void main(String[] args) {
-       /*Requisitos de actividad
-            Operar venta
-            Operar promoción
-            Operar búsqueda
-            Operar eliminación de entradas
-            Aplicar descuentos
-                10% estudiantes
-                15% tercera edad
-            Incluir menú de opciones
-            Abordar los temas relacionados a variables
-            Validar los resultados ingresados por el usuario
-        Paso 1: Menu de opciones
-            - Venta de entradas
-                Solicitar la ubicación de la entrada: VIP, platea, General
-                Aplicar descuento
-                Mostrar el precio final y almacenar la entrada vendida
-            - Promociones
-                Mostrar promociones disponibles por mayor o similares
-        voy a agregar un 10% por 3 entradas, 20% 5 entradas
-            - Búsqueda de entradas
-                Busqueda por asiento, número, tipo, descuento, como opciones
-            - Eliminación de entradas
-                Elimina una entrada especifica mediante su número
-            Estructuras condicionales
-                Para determinar descuentos
-                Ciclos para realizar busquedas y recorres lista de entradas vendidas
-        Paso 2: Variables
-            4 variables locales (datos temporales, como descuento aplicado)
-            4 variables de instancia (datos persistentes, como las entradas que ya estan vendidas)
-            3 variables estaticas (datos globales, como el precio de las entradas por sector)
-        */
-        //Declaracion de variables:
-        //Variables estaticas
-        int valorGeneral=5000, valorVip=25000, valorPlatea=10000; //valores
-        int nGeneral=60, nVip=20, nPlatea=40;//entradas disponibles
-        String nombreCliente[] = new String[120]; //arreglo para nombres de clientes
-        int nAsientos[] = new int[120];
-        String tipoAsiento[] = new String[120];
-        String codigoAsiento[] = new String[120];
-        boolean comprado[] = new boolean[120];
-        int valorPagado[] = new int[120];
-        
-        //variables de instancia
-        Timer[] timer = new Timer[10];
-        int menu=0; //eleccion del switch case
-        int filaNum;
-        int indiceArray;
-        int pago, nEntradas = 0, sector=0, vEntrada, edad=0, nro = 0;//entradas de usuario
-        String nombre, estado, codigo="aa", confirmacion = null, codigoNoDisponible ="aa";
-        boolean paso=false, ciclo=false, encontrado=false;
-        char charFila = 0;
-        String fila;  //codigo asiento letra
-        String columna; //codigo de asiento bnumero
-        //variables locales       
-        int promocion, valor = 0, cantidad = 0, indice[] = new int[170], lista = 0, timerLista, timerIndice = 0;
-        
-        double total, descuentoPromo=0, descuentoEdad=0, descuento, vuelto;
-        String sectorText = null;
-        
-        Scanner tc=new Scanner(System.in);//Activar el teclado       
-        
-        //Menu de eleccion para cliente de Teatro Moro
-        while (!ciclo){
-            System.out.println("Bienvenido a Teatro Moro\n" //mensaje inicial
-                    + "¿Qué desea hacer hoy?\n"
-                    + "1. Comprar entradas\n"
-                    + "2. Revisar / pagar reserva\n"
-                    + "3. Promociones disponibles\n"
-                    + "4. Revise sus entradas\n"
-                    + "5. Devolución de entradas\n"
-                    + "6. Terminar visita");       
-
-           while(!paso){               //validacion de eleccion
-                    try{
-                        System.out.println("\nIngrese una opción valida");
-                        menu=tc.nextInt();                                         
-                    while(menu<1 || menu>5){ //validación de menu correcto
-                        System.out.println("Por favor ingrese una opción valida\n"
-                            + "1. Reservar y comprar entradas\n" //agregar reserva preguntar para confirmar pago
-                            + "2. Revisar /pagar reserva" //confirmar pago
-                            + "3. Promociones disponibles\n"
-                            + "4. Revise sus entradas\n"// confirmar clientes que compraron
-                            + "5. Devolución de entradas\n"
-                            + "6. Terminar visita");
-                        menu=tc.nextInt();                        
-                }
-                    paso=true;
-            }catch(InputMismatchException e) {                
-                System.out.println("Error, por favor ingrese una opción valida\n"
-                        + "1. Reservar y comprar entradas\n" //agregar reserva preguntar para confirmar pago
-                        + "2. Revisar /pagar reserva" //confirmar pago
-                        + "3. Promociones disponibles\n"
-                        + "4. Revise sus entradas\n"// confirmar clientes que compraron
-                        + "5. Devolución de entradas\n"
-                        + "6. Terminar visita");              
-                tc.next();          
-                paso=false;                
-                }
+            
+        do{ //ciclo entero de la visita al Teatro
+            System.out.println("Bienvenido a "+teatroNombre+"\n"
+                    + "\n"
+                    + "¿Qué desea hacer hoy?"
+                    + "\n");
+            imprimirMenu();
+            System.out.println("\nIngrese una opción valida"); // pide opcion del menu principal para continuar
+            do { 
+                
+                inputString=inputTc.nextLine();   //entrada selección menú
+                validacionNro();
+                validarMenu();
+            } while (!ciclo); // validaciones de ingreso de datos            
+            switch(menu) {
+                case 1 -> casoUno();
+                case 2 -> casoDos();
+                case 3 -> casoTres();
+                case 4 -> casoCuatro();
+                case 5 -> casoCinco();
+                
+                case 6 -> casoSeis();                
+                case 7 -> menu=0;
+                default -> errorValidacion();
             }
-        paso=false;
-        switch(menu){ //eleccion de caso
-            case 1:       // caso de reserva y confirmacion de compra         
-                System.out.println("====Entradas disponibles====\n" //Stock de entradas
-                    + "Tipo       | Valor    | Disponibles"
-                    + "\n1. VIP     | "+valorVip+" |      "+nVip
-                    + "\n2. Platea  | "+valorPlatea+" |      "+nPlatea
-                    + "\n3. General |  "+valorGeneral+" |      "+nGeneral);                    
-                while(paso==false){//selector sector o tipo de entrada
-                    try {
-                        System.out.println("Ingrese sector de su preferencia"); 
-                        sector=tc.nextInt();                            
-                        while(sector<1 || sector>3){ //validación de menu correcto                                                       
-                            System.out.println("Error, por favor ingrese una opción valida para tipo de entrada con:\n"
-                                + "\n1. VIP"
-                                + "\n2. Platea"
-                                + "\n3. General");
-                            sector=tc.nextInt();                                
-                        }
-                        paso=true;
-                    }catch(InputMismatchException e) {
-                        System.out.println("Error, por favor ingrese una opción valida para tipo de entrada con:\n"
-                            + "\n1. VIP"
-                            + "\n2. Platea"
-                            + "\n3. General");
-                        tc.nextLine();  
-                        paso=false;
-                    }                                                     
-                }   
-                System.out.println("Ingrese su nombre para generar su compra");
-                tc.nextLine();
-                nombre=tc.nextLine().toUpperCase();
-                paso=false; // reinicio variable para proximo menu de validación  
-                
-                if(sector==1) { //impresion vip 
-                    System.out.println("   ---- MAPA DE ASIENTOS ----\n"
-                        + "\n   1  2  3  4  5  6  7  8  9  10");
-                    System.out.print("A ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[i] ? "[X]" : codigoAsiento[i]!=null ? "[R]" : "[ ]");       
-                        System.out.print(estado);
-                    }
-                    System.out.println("");
-                    System.out.print("B ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[10+i] ? "[X]" : codigoAsiento[10+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                    System.out.println("\n");
-                    System.out.println("Comprado[X] Reservado[R] Disponible[ ]");
-                    System.out.println("");
-                    System.out.println("¿Que asiento prefiere?");
-                    confirmacion=tc.nextLine();
-                    while (!ciclo){       //ciclo de ingreso de asientos                         
-                        while (!paso){  // validacion de asientos vip  
-                            if(confirmacion==null){
-                                confirmacion=tc.nextLine();
-                            }
-                            codigo=confirmacion.toUpperCase();
-                            charFila=codigo.charAt(0);
-                            columna=codigo.substring(1);
-                            if(codigo.length()!=2){
-                            System.out.println("Por favor ingrese una opción valida");                
-                            }
-                            if (charFila<'A' || charFila>'B'){
-                                System.out.println("Por favor ingrese una opción valida");
-                                continue;
-                            }                                    
-                            try{
-                                nro=Integer.parseInt(columna);                                
-                            }catch(NumberFormatException e){
-                                System.out.println("El numero es invalido");
-                                continue;
-                            }
-                            encontrado=false;
-                            for(int i = 0; i < nombreCliente.length; i++){                                
-                                if(codigoAsiento[i]!=null && codigoAsiento[i].equals(codigo)){
-                                    System.out.println("Asiento no disponible");
-                                    confirmacion=tc.nextLine();
-                                    encontrado=true;
-                                    break;
-                                }                                
-                            }  
-                            if(encontrado){
-                                continue;
-                            }
-                        if (charFila=='A'){ //guardado de datos cliente
-                            filaNum=-1;
-                        }else{
-                            filaNum=9;
-                        }
-                        indiceArray=filaNum+nro;
-                        for ( int i = 0 ; i<20 ; i++){
-                            if(i==indiceArray){
-                                codigoAsiento[i]=codigo;
-                                nombreCliente[i]=nombre;
-                                break;
-                            }
-                        }
-                        paso=true;
-                        }
-                        nEntradas++; //suma de entradas del cliente en uso                      
-                        System.out.println("¿Desea escoger otro asiento?");
-                        System.out.println("Presione Enter para continuar, cualquier otra tecla para nuevo asiento");                       
-                        confirmacion=tc.nextLine();
-                        if(confirmacion!=""){
-                            ciclo=false;
-                            paso=false;
-                            continue;                      
-                        }
-                        ciclo=true;
-                    }                    
-                    valor=valorVip;
-                    cantidad=nVip;
-                    sectorText="Vip";                                         
-                    
-                }else if(sector==2){ //impresion platea
-                    System.out.println("   ---- MAPA DE ASIENTOS ----\n"
-                        + "\n   1  2  3  4  5  6  7  8  9  10");
-                    System.out.print("C ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[20+i] ? "[X]" : codigoAsiento[20+i]!=null ? "[R]" : "[ ]");       
-                        System.out.print(estado);
-                    }
-                    System.out.println("");
-                    System.out.print("D ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[30+i] ? "[X]" : codigoAsiento[30+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                    System.out.println("");
-                    System.out.print("E ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[40+i] ? "[X]" : codigoAsiento[40+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                     System.out.println("");
-                    System.out.print("F ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[50+i] ? "[X]" : codigoAsiento[50+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }                  
-                    System.out.println("\n");
-                    System.out.println("Comprado[X] Reservado[R] Disponible[ ]");
-                    System.out.println("");
-                    System.out.println("¿Que asiento prefiere?");   
-                    confirmacion=tc.nextLine();
-                    while (!ciclo){       //ciclo de ingreso de asientos                         
-                        while (!paso){  // validacion de asientos vip  
-                            if(confirmacion==null){
-                                confirmacion=tc.nextLine();
-                            }
-                            codigo=confirmacion.toUpperCase();                            
-                            charFila=codigo.charAt(0);
-                            columna=codigo.substring(1);
-                            if(codigo.length()!=2){
-                            System.out.println("Por favor ingrese una opción valida");                
-                            }
-                            if (charFila<'C' || charFila>'F'){
-                                System.out.println("Por favor ingrese una opción valida");
-                                continue;
-                            }                                    
-                            try{
-                                nro=Integer.parseInt(columna);                                
-                            }catch(NumberFormatException e){
-                                System.out.println("El numero es invalido");
-                                continue;
-                            }
-                            encontrado=false;
-                            for(int i = 20; i < nombreCliente.length; i++){                                
-                                if(codigoAsiento[i]!=null && codigoAsiento[i].equals(codigo)){
-                                    System.out.println("Asiento no disponible");
-                                    confirmacion=tc.nextLine();
-                                    encontrado=true;
-                                    break;
-                                }                                
-                            }  
-                            if(encontrado){
-                                continue;
-                            }
-                        if (charFila=='C'){ //guardado de datos cliente
-                            filaNum=19;
-                        }else if(charFila=='D'){
-                            filaNum=29;
-                        }else if(charFila=='E'){
-                            filaNum=39;
-                        }else{
-                            filaNum=49;
-                        }
-                        indiceArray=filaNum+nro;
-                        for ( int i = 20 ; i<60 ; i++){
-                            if(i==indiceArray){
-                                codigoAsiento[i]=codigo;
-                                nombreCliente[i]=nombre;
-                                break;
-                            }
-                        }
-                        paso=true;
-                        }
-                        nEntradas++; //suma de entradas del cliente en uso                      
-                        System.out.println("¿Desea escoger otro asiento?");
-                        System.out.println("Presione Enter para continuar, cualquier otra tecla para nuevo asiento");                       
-                        confirmacion=tc.nextLine();
-                        if(confirmacion!=""){
-                            ciclo=false;
-                            paso=false;
-                            continue;                      
-                        }
-                        ciclo=true;
-                    }                    
-                    valor=valorPlatea;
-                    cantidad=nPlatea;
-                    sectorText="Platea";
-                    
-                }else{ //impresion sector general
-                    System.out.println("   ---- MAPA DE ASIENTOS ----\n"
-                        + "\n   1  2  3  4  5  6  7  8  9  10");
-                    System.out.print("G ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[60+i] ? "[X]" : codigoAsiento[60+i]!=null ? "[R]" : "[ ]");       
-                        System.out.print(estado);
-                    }
-                    System.out.println("");
-                    System.out.print("H ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[70+i] ? "[X]" : codigoAsiento[70+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                     System.out.println("");
-                    System.out.print("I ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[80+i] ? "[X]" : codigoAsiento[80+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                     System.out.println("");
-                    System.out.print("J ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[90+i] ? "[X]" : codigoAsiento[90+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                    System.out.println("");
-                    System.out.print("L ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[100+i] ? "[X]" : codigoAsiento[100+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                    System.out.println("");
-                    System.out.print("M ");
-                    for(int i = 0; i < 10; i++){
-                        estado = (comprado[110+i] ? "[X]" : codigoAsiento[110+i]!=null ? "[R]" : "[ ]"); 
-                        System.out.print(estado);
-                    }
-                    System.out.println("\n");
-                    System.out.println("Comprado[X] Reservado[R] Disponible[ ]");
-                    System.out.println("");
-                    System.out.println("¿Que asiento prefiere?");
-                    confirmacion=tc.nextLine();                    
-                    while (!ciclo){       //ciclo de ingreso de asientos                         
-                        while (!paso){  // validacion de asientos vip 
-                            if(confirmacion==null){
-                                confirmacion=tc.nextLine();
-                            }
-                            codigo=confirmacion.toUpperCase();
-                            charFila=codigo.charAt(0);
-                            columna=codigo.substring(1);
-                            if(codigo.length()!=2){
-                            System.out.println("Por favor ingrese una opción valida");                
-                            }
-                            if (charFila<'G' || charFila>'M'){
-                                System.out.println("Por favor ingrese una opción valida");
-                                continue;
-                            }                                    
-                            try{
-                                nro=Integer.parseInt(columna);                                
-                            }catch(NumberFormatException e){
-                                System.out.println("El numero es invalido");
-                                continue;
-                            }
-                            encontrado=false;
-                            for(int i = 0; i < nombreCliente.length; i++){                                
-                                if(codigoAsiento[i]!=null && codigoAsiento[i].equals(codigo)){
-                                    System.out.println("Asiento no disponible");
-                                    confirmacion=tc.nextLine();
-                                    encontrado=true;
-                                    break;
-                                }                                
-                            }  
-                            if(encontrado){
-                                continue;
-                            }
-                        if (charFila=='G'){ //guardado de datos cliente
-                            filaNum=59;
-                        }else if(charFila=='H'){
-                            filaNum=69;
-                        }else if(charFila=='I'){
-                            filaNum=79;
-                        }else if(charFila=='J'){
-                            filaNum=89;
-                        }else if(charFila=='L'){
-                            filaNum=99;
-                        }else{
-                            filaNum=109;
-                        }
-                        indiceArray=filaNum+nro;
-                        for ( int i = 60 ; i<120 ; i++){
-                            if(i==indiceArray){
-                                codigoAsiento[i]=codigo;
-                                nombreCliente[i]=nombre;
-                                break;
-                            }
-                        }
-                        paso=true;
-                        }
-                        
-                        //paso a terminar la compra o generar reserva
-                        nEntradas++; //suma de entradas del cliente en uso                      
-                        
-                        System.out.println("Presione Enter para continuar, o ingrese nuevo asiento");                       
-                        confirmacion=tc.nextLine();
-                        if(confirmacion!=""){
-                            ciclo=false;
-                            paso=false;
-                            continue;                      
-                        }
-                        ciclo=true;
-                    }                    
-                    valor=valorGeneral;
-                    cantidad=nGeneral;
-                    sectorText="General";
-                    
-                }
-                cantidad=cantidad-nEntradas; //guardar datos para calculos                 
+        } while (menu!=0);
+    }
+            
+    static private void imprimirMenu () {
+        System.out.println("1. Revisar asientos disponibles\n"
+            + "2. Comprar entradas\n"
+            + "3. Revisar / pagar reserva\n"                    
+            + "4. Revise sus entradas\n"
+            + "5. Devolución de entradas\n"
+            + "\n"
+            + "6.Registro de ventas\n"
+            + "7. Terminar visita");  
+    }
+    
+    static void errorValidacion () {
+        System.out.println("Por favor ingrese una opción valida");  
+    }       
+    
+    static private void mostrarAsientosDisponibles(){
+        stockDisponible();
+        mapaAsientos();
+    }
+    
+    static private void stockDisponible(){
+        System.out.println("====Entradas disponibles====\n" //Tabla de stock de entradas
+                    + "Tipo               | Valor | Disponibles"
+                    + "\n1. VIP     (A - B) | "+valorVip+" |      "+nVip  
+                    + "\n2. Platea  (C - F) | "+valorPlatea+" |      "+nPlatea
+                    + "\n3. General (G - L) |  "+valorGeneral+" |      "+nGeneral); 
+    }    
+        
+    static private void mapaAsientos() {
+        char fila='@';
+        String estado;
+        System.out.println("   ---- MAPA DE ASIENTOS ----\n" //impresion de asientos Disponibles/Ocupados
+                        + "\n  1  2  3  4  5  6  7  8  9  10");
+        for (int i=0 ; i<codigoAsiento.length ; i++) { //cantidad codigos maxima en combinaciones 
+            if(i%10==0){ //valida 10 conteos: hace un salto de línea y avanza una fila
+                System.out.println("");                
+                fila++;
+                System.out.print(fila);
+            }                        
+                estado = (comprado[i] ? "[X]" : codigoAsiento[i]!=null ? "[R]" : "[ ]"); //comparación de estado para impresión
+                System.out.print(estado);            
+            }
+        System.out.println("");        
+        }
+    
+    static public void validacionNro () {
+        boolean paso=false;
+        while (!paso){                        
+            try{
+                nro = Integer.parseInt(inputString); //convierte string a nro, si falla error
+                paso=true;                
+            }catch(NumberFormatException e) {                
+                errorValidacion();
                 paso=false;
-                while (paso==false){
-                    try{ //validacion de edad
-                        System.out.println("Ingrese su edad para confirmar descuentos");
-                        edad=tc.nextInt(); 
-                        while(edad>110 || edad<1){
-                            System.out.println("Cantidad no válida");
-                            edad=tc.nextInt();
-                        }
-                        paso=true;
-                    }catch(InputMismatchException e) {
-                        System.out.println("Error, por favor ingrese una cantidad de años validos\n");
-                        tc.nextLine();
-                        paso=false;
-                    }
-                }   
-                total=nEntradas*valor; //asignacion de descuentos
-                if(nEntradas%3==0){
-                    descuentoPromo=0.10;
-                }else if(nEntradas%5==0){
-                    descuentoPromo=0.20;
-                }else if(edad<18 && edad>0){
-                    descuentoEdad=0.10;
-                }else if(edad>59){
-                    descuentoEdad=0.15;
+                inputString=inputTc.nextLine(); 
+                continue;                                
+            }
+        }
+    }
+    
+    static public boolean inputStringVacio () {
+        if (inputString.isEmpty()){
+            return true;
+        }
+        return false;
+    }
+    
+    static public void validarMenu (){
+        if (nro<1 || nro > 7) {
+            errorValidacion();
+        }else{
+            menu=nro;
+            ciclo=true;
+        }        
+    }
+    
+    static public void casoUno () {
+        mostrarAsientosDisponibles();
+    }
+    
+    static public void casoDos () {
+        guardarNombre();
+        mapaAsientos();
+        System.out.println("");
+        System.out.println("Escoja los asientos de su preferencia");
+        System.out.println("Para terminar elección solo presione Enter"); 
+        ciclo=false; // dclaracion para poner en marcha el bucle de reservas        
+        do {
+        verificarCodigoAsiento();   // pasa aqui y reserva en primer lugar el asiento en array codigo asiento                
+        if (codigo.isEmpty()) {  //verifica ingreso vacio
+            buscarCliente();
+            if (!encontrado){  //si escogio asientos antes sigue con ciclo de compra
+                System.out.println("Volviendo menu principal");
+                break;
+            }            
+        }
+        asignacionDescuentoEspecial();        
+        imprimirDatosCliente();
+        procesoCompraReserva();
+        menu=-1;
+        } while(!ciclo);
+    }
+    
+    static public void casoTres() {
+        guardarNombre();
+        buscarCliente();
+        if(encontrado){            
+            revisarAsiento();
+            if (!encontrado){
+                imprimirDatosCliente();
+                System.out.println("¿Desea terminar la compra?");
+                System.out.println("Si (Y) / NO (otra tecla)");
+                inputString=inputTc.nextLine().toUpperCase();
+                if(inputString.equals("Y")){
+                    procesoCompra();
                 }else{
-                    descuento=0;
+                    System.out.println("Volviendo al menu principal\n");
                 }
-                descuento=descuentoEdad+descuentoPromo;//calculo descuentos
-                total=total-(total*descuento);//aplicacion de descuentos
-                descuento=total*descuento;                
-                System.out.println("El total de su boleta es: $"+(int)total);
-                System.out.println("Los descuentos aplicados fueron de $"+(int)descuento);
-                
-                for (int i = 0; i < nombreCliente.length; i++) {
-                    if(nombreCliente[i]==nombre){                        
-                        indice[i]=i; 
-                        lista=i;
-                        timerLista=i;
-                        nAsientos[i]=nEntradas;
-                        tipoAsiento[i]=sectorText;
-                        valorPagado[i]=(int)total;
-                        break;
-                    }
-                }
-                if(sector==1){
-                        nVip=nVip-nEntradas;
-                    }else if(sector==2){
-                        nPlatea=nPlatea-nEntradas;
-                    }else{
-                        nGeneral=nGeneral-nEntradas;
-                    }
-                System.out.println("Para terminar su compra presione Enter");
-                System.out.println("Para generar reserva ingrese cualquier otra tecla");
-                tc.nextLine(); 
-                confirmacion=tc.nextLine();
-                if(confirmacion==""){
-                    System.out.println("Ingrese el total de su boleta para efectuar el pago: $"+(int)total);                
-                    pago=tc.nextInt();
-                    while(pago!=(int)total){
-                        if(pago<total) {
-                        System.out.println("Ingrese el importe completo: $"+total);  
-                        pago=tc.nextInt();
-                        }else{
-                            vuelto=pago-total;
-                            System.out.println("Su vuelto es de $"+(int)vuelto);
-                            break;
-                        }
-                    }                                   
-                }else{
-                    //generar timer de reserva ojala con array o identificador para el cliente que compra
-                    //break es para no imprimir la compra
-                    System.out.println("Se ha generado la reserva");
-                    System.out.println("Estará disponible por 1:30 minutos");
+            }else{
+                System.out.println("Sus entradas ya estan pagadas");
+            }    
+        }else {
+            System.out.println("Cliente no encontrado");
+        }
+    }
+    
+    static public void casoCuatro () {
+        ingresarNombre();
+        buscarCliente();
+        imprimirDatosCliente();
+    }
+    
+    static public void casoCinco() {
+        ingresarNombre();        
+        buscarCliente();
+        if (encontrado){
+            imprimirDatosCliente();
+            System.out.println("¿Desea hacer un reembolso?");
+            System.out.println("Si (Y) / NO (otra tecla)");
+            inputString=inputTc.nextLine().toUpperCase();
+            if (inputString.equals("Y")){                
+                System.out.println("Se ha reembolsado: $"+(int)total);
+                recaudacion-=total;
+                cambioEstadoCompradofalse();
+                borrarDatosCliente();                            
+            }else{
+                System.out.println("Cliente no existe");
+            }       
+        }
+    }    
+    
+    static public void casoSeis() {
+        System.out.println("Binevenido a la zona de administración");
+        System.out.println("¿Qué información desea revisar?\n"
+                + "1. Registro completo de ventas\n"
+                + "2. Recaudacion total");
+        inputString=inputTc.nextLine().trim();
+        if (inputString.equals("1")){
+            System.out.println("Ventas registradas: \n");
+            System.out.println(ventas);
+        }else if(inputString.equals("2")){
+            System.out.println("La recaudación total es de $"+recaudacion);                
+        }else{
+            errorValidacion();
+        }        
+    }             
+    
+    static public void guardarNombre() {
+        ingresarNombre();              
+        total=0;
+    }                     
+    
+    static public void verificarCodigoAsiento() {
+        boolean paso=false;                
+        while (!paso) {            // busca que el codigo de asiento sea valido  
+            inputString=inputTc.nextLine().trim();
+            paso = inputStringVacio();
+            if (paso==true){
+                inputString=null;
+                codigo="";
+                break;
+            }
+            //convierto los datos para pasar a validacion
+            codigo=inputString.toUpperCase();
+            charFila=codigo.charAt(0);
+            inputString=codigo.substring(1);
+            
+            if(codigo.length()!=2){ //valida el largo de los datos
+            errorValidacion();
+            continue;
+            }
+            if (charFila<'A' || charFila>'L'){ //valida secciones elegidas
+                errorValidacion();
+                continue;
+            }   
+            convertirCharFila();
+            validacionNro();
+            revisarAsiento();
+            if(!encontrado){ //si asiento esta ocupado evita que se guarde el asiento
+                guardarAsiento();
+            }else{
+                System.out.println("Asiento no disponible");
+            }
+            
+        }
+    }
+                        
+    static private void revisarAsiento() {
+        encontrado=false;   // buscar si el asiento ya esta ocupado o reservado        
+        for(int i = 0; i < codigoAsiento.length; i++){                                
+            if(codigoAsiento[i]!=null && codigoAsiento[i].equals(codigo)){                                
+                encontrado=true;
+                break;
+            }                                
+        }            
+    }                 
+    
+    static public void convertirCharFila() {   // asigno valores por fila segun impresion de columnas (10)
+        switch (charFila) {
+            case 'A':
+                filaNum=-1;  //comienza en -1 por la suma de fila++, se asigno caracter @ para comenzar, suma y resulta A
+                break;
+            case 'B':
+                filaNum=9;
+                break;
+            case 'C':
+                filaNum=19;
+                break;
+            case 'D':
+                filaNum=29;
+                break;
+            case 'E':
+                filaNum=39;
+                break;
+            case 'F':
+                filaNum=49;
+                break;
+            case 'G':    
+                filaNum=59;
+                break;
+            case 'H':
+                filaNum=69;
+                break;
+            case 'I':
+                filaNum=79;
+                break;
+            case 'J':
+                filaNum=89;
+                break;
+            case 'K':
+                filaNum=99;
+                break;
+            default:
+                filaNum=109;
+                break;
+        }                           
+    }  //convierte valor de caracter fila a valor numérico   
+    
+    static public void guardarAsiento() {
+        inputInt=filaNum+nro;
+        for ( int i = 0 ; i<120 ; i++){
+            if(i==inputInt){
+                nro=i;
+                codigoAsiento[i]=codigo; //genera la reserva en array
+                codigo=""; //reinicia variable
+                nombreCliente[i]=nombre; //asigna nombre para la busqueda                       
+                break;
+            }
+        }        
+    }       
+    
+    static public void asignacionDescuentoEspecial() { //sumo desuento sobre descuento
+        
+        System.out.println("Si es estudiante ingrese Y");
+        inputString=inputTc.nextLine().toUpperCase();
+        if (inputString.equals("Y")) {
+            descuento=descuento+descuentoEstudiante;
+        }
+        System.out.println("Si es de la tercera edad ingrese Y");
+        inputString=inputTc.nextLine().toUpperCase();
+        if (inputString.equals("Y")) {
+            descuento=descuento+descuentoTEdad;
+        }
+    }            
+    
+    static public void procesoCompraReserva() {               
+        System.out.println("Para terminar su compra presione Enter");
+        System.out.println("Para generar reserva ingrese cualquier otra tecla");                      
+        inputString=inputTc.nextLine();
+        if(inputString.equals("")){
+           procesoCompra();               
+        }else{ //generador de reserva
+           generarReserva();
+        }
+        ciclo=true;
+        
+    }        
+    
+    static public void ingresarNombre () {
+        System.out.println("Por favor, ingrese su nombre");        
+        nombre=inputTc.nextLine().toUpperCase();
+    }
+    
+    static public void buscarCliente() {        
+        encontrado=false;
+        for (int i = 0 ; i<120 ; i++){
+            if(nombre.equals(nombreCliente[i])) {                
+                nro=i;
+                encontrado=true;                          
+            }
+        }                
+    }
+    
+    static private void generarReserva()  {
+        System.out.println("Se ha generado la reserva a nombre de "+nombre);
+                System.out.println("Estará disponible por 1:30 minutos");
                 String nombreReserva = nombre;
-                    for( int i = 0 ; i<10; i++){ // inicio el timer en array
+                    for( int i = 0 ; i<10; i++){ // inicio el timer en array guarda hasta 10 reservas
                         if(timer[i]==null){
                             timerIndice = i;
-                            timer[i]= new Timer(true);
+                            timer[timerIndice]= new Timer(true);
                             break;
                         }
                     }
-                     TimerTask reserva = new TimerTask(){
-                        @Override
-                        public void run() {                            
-                            for (int i=0; i<120; i++){
-                                if(nombreCliente[i]==nombreReserva){
-                                    if(comprado[i]==false){
-                                        nombreCliente[i]=null;
-                                        tipoAsiento[i]=null;
-                                        nAsientos[i]=0;
-                                        valorPagado[i]=0;                                          
-                                        codigoAsiento[i]=null;
-                                        System.out.println("Se ha borrado la reserva");
-                                    }
-                                }    
-                            }
-                            this.cancel();                            
-                        }
-                        
-                    };
-                    timer[timerIndice].schedule(reserva, 90*1000);
-                    timer[timerIndice]=null;
-                            
-                nEntradas=0;// lineas temporales para verificaciones
-                total=0;
-                descuento=0;
-                ciclo=false;
-                paso=false;
-                menu=0;
-                encontrado=false;
-                break;                                         
-                }
-                    System.out.println("Resumen de su compra:"
-                        + "\nNombre: "+nombreCliente[lista]
-                        + "\nSector: "+tipoAsiento[lista]
-                        + "\nCantidad: "+nAsientos[lista]
-                        + "\nTotal: "+valorPagado[lista]);  
-                    System.out.println("");
-                for (int i = 0; i < nombreCliente.length; i++) {
+                TimerTask reserva = new TimerTask(){ 
+                   @Override
+                public void run() {      
                     
-                    if(nombreCliente[i]==nombre){                        
-                        comprado[i]=true;                       
-                        indice[i]=0;                        
-                    }
-                }
-                nEntradas=0;
-                total=0;
-                descuento=0;
-                ciclo=false;
-                paso=false;
-                menu=0;
-                encontrado=false;
-                break;                                        
-                   
-            case 2: //pagar una reserva
-                encontrado=false;                      
-                System.out.println("Ingrese su nombre para revisar su reserva en caso de poseerla"); 
-                tc.nextLine();
-                nombre=tc.nextLine().toUpperCase();
-                for(int i = 0 ; i < nombreCliente.length ; i++ ){
-                    if(nombre.equals(nombreCliente[i])){
-                        if(comprado[i]==true){
-                            System.out.println("Sus asientos ya han sido pagados"); 
-                            System.out.println("");
-                            encontrado=true;
-                            menu=0;
-                            paso=false;
-                            ciclo=false;
-                            break;
-                        }
-                        lista = i;  
-                        System.out.println("Resumen de su compra:"
-                            + "\nNombre: "+nombreCliente[lista]
-                            + "\nSector: "+tipoAsiento[lista]
-                            + "\nCantidad: "+nAsientos[lista]);
-                        System.out.print("Asientos: ");
-                            for (int b = 0; b < 120; b++){
-                                if(nombreCliente[b]==nombreCliente[lista]){
-                                    codigo=codigoAsiento[b];
-                                    System.out.print(codigo+", ");
-                                }
+                    for (int i=0; i<120; i++){
+                        if(nombreCliente[i]==nombreReserva){
+                            if(comprado[i]==false){  //verifica que cliente alcanzo a comprar antes de eliminar la reserva                                
+                                System.out.println("Se ha borrado la reserva de "+nombreCliente[i]);                    
+                                tipoAsiento[i]=null;
+                                valorPagado[i]=0;                                          
+                                codigoAsiento[i]=null;  
+                                nombreCliente[i]=null;                    
                             }
-                            
-                            System.out.println("\nTotal: "+valorPagado[lista]);
-                        System.out.println("");
-                        encontrado=true;
-                        break;
-                    }
+                        }    
+                    } 
+                    this.cancel();                            
                 }
-                    if(encontrado==false){
-                        System.out.println("No se han encontrado coincidencias\n");
-                        break;
-                }
-                if (encontrado && comprado[lista]){
-                    //vacio porque mostro ya el mensaje de asientos pagados
-                }else if(encontrado){
-                //ciclo de compra
-                System.out.println("Para terminar su compra presione Enter");
-                System.out.println("Para volver al menu ingrese cualquier otra tecla");                
-                confirmacion=tc.nextLine();
-                if(confirmacion==""){
-                    System.out.println("Ingrese el total de su boleta para efectuar el pago: $"+valorPagado[lista]);                
-                    pago=tc.nextInt();
-                    while(pago!=valorPagado[lista]){
-                        if(pago<valorPagado[lista]) {
-                        System.out.println("Ingrese el importe completo: $"+valorPagado[lista]);  
-                        pago=tc.nextInt();
-                        }else{
-                            vuelto=pago-valorPagado[lista];
-                            System.out.println("Su vuelto es de $"+(int)vuelto);
-                            break;
-                        }
-                    }
-                    System.out.println("Resumen de su compra:"
-                            + "\nNombre: "+nombreCliente[lista]
-                            + "\nSector: "+tipoAsiento[lista]
-                            + "\nCantidad: "+nAsientos[lista]);
-                        System.out.print("Asientos: ");
-                            for (int b = 0; b < 120; b++){
-                                if(nombreCliente[lista]==codigoAsiento[lista]){
-                                    codigo=codigoAsiento[lista];
-                                    System.out.print(codigo+", ");
-                                }
-                            }                            
-                            System.out.println("\nTotal: "+valorPagado[lista]);
-                        System.out.println("");
-                    if(sector==1){
-                        nVip=nVip-nAsientos[lista];
-                    }else if(sector==2){
-                        nPlatea=nPlatea-nAsientos[lista];
-                    }else{
-                        nGeneral=nGeneral-nAsientos[lista];
-                    }                  
-                for (int i = 0; i < nombreCliente.length; i++) {                    
-                    if(nombreCliente[i]==nombreCliente[lista]){                        
-                        comprado[i]=true;                       
-                        indice[i]=0;                        
-                    }
-                }
-                }
-                }             
-                menu=0;
-                paso=false;
-                ciclo=false;
-                break;
-                    
-            case 3:         
-                System.out.println("---PROMOCIONES DEL MES---"
-                        + "\n- Por 3 entradas un 10% de descuento"
-                        + "\n- Por 5 entradas un 20% de descuento"
-                        + "\n"
-                        + "\nEstudiantes: 10% de descuento"
-                        + "\nAdulto moyar: 15% de descuento"
-                        + "\n");                   
-                paso=false; 
-                menu=0;
-                break;
-            case 4:  //revisar entradas compradas
-                encontrado=false;                      
-                System.out.println("Ingrese su nombre para revisar su reserva en caso de poseerla"); 
-                tc.nextLine();
-                nombre=tc.nextLine().toUpperCase();
-                for(int i = 0 ; i < nombreCliente.length ; i++ ){
-                    if(nombre.equals(nombreCliente[i]) && comprado[i]){                        
-                        lista = i;  
-                        System.out.println("Resumen de su compra:"
-                            + "\nNombre: "+nombreCliente[lista]
-                            + "\nSector: "+tipoAsiento[lista]
-                            + "\nCantidad: "+nAsientos[lista]);
-                        System.out.print("Asientos: ");
-                            for (int b = 0; b < 120; b++){
-                                if(nombreCliente[b]==(nombreCliente[lista])){
-                                    codigo=codigoAsiento[b];
-                                    System.out.print(codigo+", ");
-                                }
-                            }
-                            
-                            System.out.println("\nTotal: "+valorPagado[lista]);
-                        System.out.println("");
-                        encontrado=true;
-                        menu=0;
-                        break;
-                    }
-                }
-                    if(encontrado==false){
-                        System.out.println("No se han encontrado coincidencias\n");
-                        break;
-                }
-            case 5: 
-                encontrado=false;                      
-                System.out.println("Ingrese su nombre para revisar su reserva en caso de poseerla"); 
-                tc.nextLine();
-                nombre=tc.nextLine().toUpperCase();
-                for(int i = 0 ; i < nombreCliente.length ; i++ ){
-                    if(nombre.equals(nombreCliente[i])){                        
-                        lista = i;  
-                        System.out.println("Resumen de su compra:"
-                            + "\nNombre: "+nombreCliente[lista]
-                            + "\nSector: "+tipoAsiento[lista]
-                            + "\nCantidad: "+nAsientos[lista]);
-                        System.out.print("Asientos: ");
-                            for (int b = 0; b < 120; b++){
-                                if(nombreCliente[b]==nombreCliente[lista]){
-                                    codigo=codigoAsiento[b];
-                                    System.out.print(codigo+", ");
-                                }
-                            }
-                            
-                            System.out.println("\nTotal: "+valorPagado[lista]);
-                        System.out.println("");
-                        encontrado=true;
-                        break;
-                    }
-                }
-                    if(encontrado==false){
-                        System.out.println("No se han encontrado coincidencias\n");
-                        break;
-                }
-                //eliminacion de entradas    
-                if(encontrado){                       
+                };
+                timer[timerIndice].schedule(reserva, 90*1000);  //tiempo asignado de 1:30 minutos
+                timer[timerIndice]=null;                                                
+            }
+    
+    static public void borrarDatosCliente () {
+        for (int i=0; i<120; i++){
+            if(nombre.equals(nombreCliente[i])){
+                if(comprado[i]==false){                                 
+                    System.out.println("Se ha borrado la compra de "+nombreCliente[i]); 
                     System.out.println("");
-                    System.out.println("¿Confirma la eliminación de entradas?");
-                    System.out.println("Presione 1 para eliminar\n"
-                        + "Presione 0 para cancelar");                      
-                    confirmacion=tc.nextLine();
-                    if(confirmacion.equals("1")){                        
-                            if(tipoAsiento[lista].equals("Vip")){
-                                nVip=nVip+nAsientos[lista];
-                            }else if(tipoAsiento[lista].equals("Platea")){
-                                nPlatea=nPlatea+nAsientos[lista];
-                            }else{
-                                nGeneral=nGeneral+nAsientos[lista];
-                            }   
-                            tipoAsiento[lista]=null;
-                            nAsientos[lista]=0;
-                            for (int b = 0; b < 120; b++){
-                                if(nombreCliente[b]==nombreCliente[lista]){
-                                    codigoAsiento[b]=null;  
-                                    comprado[b]=false;
-                                }
-                            }
-                            nombreCliente[lista]=null;
-                            System.out.println("Entradas eliminadas");
-                            System.out.println("La devolución se realizará por $"+valorPagado[lista]);
-                            valorPagado[lista]=0;                            
-                        }else if(confirmacion.equals("0")){
-                            System.out.println("Volviendo al menu principal");
-                        }else{
-                            System.out.println("Entrada invalida");
-                            continue;
-                        }   
-                    menu=0;
-                    break;
-                }                                                        
-            default:
-                System.out.println("Muchas gracias por su visita al Teatro Moro");
-                ciclo=true;
+                    tipoAsiento[i]=null;
+                    valorPagado[i]=0;                                          
+                    codigoAsiento[i]=null;  
+                    nombreCliente[i]=null;                    
+                }
+            }    
+        } 
+    }
+    
+    static public void procesoCompra() {
+        obtenerDatosCliente();
+        verificarPago();
+        imprimirDatosCliente();
+        System.out.println("    MUCHAS GRACIAS POR SU\n"
+                + "     VISITA Y PREFERENCIA");
+        System.out.println("--------------------------------");    
+        descuentoEntradasDisponibles();
+        cambioEstadoCompradotrue();
+        recaudacion+=total;
+                
+        ventas.add(obtenerDatosCliente());
+        //agregar a registro de ventas de clientes
+    }
+    
+    static public String obtenerDatosCliente () {
+        StringBuilder datos = new StringBuilder(); //constructor de String para guardar los datos
+        cantidad=0;        
+        total=0;
+        codigo=null;        
+        datos.append("Nombre: ").append(nombre).append("\n")
+                .append("Nro Asientos: ");                
+        contarAsientos();
+        datos.append(cantidad).append("\n");
+        datos.append("Codigo asientos: ");
+        for(int  i = 0; i<120; i++) {       //ciclo que asigna valores para el calculo de boleta
+            if(nombre.equals(nombreCliente[i])) {
+                if(i<20){
+                    sectorTxt="Vip";                    
+                    valor=valorVip;
+                }else if(i>20 && i<60){
+                    sectorTxt="Platea";                    
+                    valor=valorPlatea;
+                }else{
+                    sectorTxt="General";                    
+                    valor=valorGeneral;
+                }
+                total+=valor;
+                codigo=codigoAsiento[i];
+                datos.append(codigo).append(" (").append(sectorTxt).append("), ");
+            }
+        }
+        datos.append("\n");
+        datos.append("Total: $").append((int)total).append("\n");
+        descuento=total*descuento; //calculo del total de los descuentos en int
+        datos.append("Descuento aplicado: $").append((int)descuento).append("\n");
+        total=total-descuento; //aplicacion del descuento
+        datos.append("Costo total: $").append((int)total).append("\n")
+                .append("-------------------------------\n\n");
+        
+        return datos.toString();
+    }
+    
+    static public void imprimirDatosCliente () {
+        System.out.println("----- Datos de su compra ----\n\n"+obtenerDatosCliente());
+                                          
+    }
+    
+    static public void contarAsientos () {
+        for(int i = 0 ; i<nombreCliente.length ; i++) {   //ciclo que busca la cantidad de veces que se repite el nombre para contar sus entradas
+            if(nombre.equals(nombreCliente[i])) {
+               cantidad+=1;
+            }       
+        }
+    }
+    
+    static public void verificarPago () {
+        boolean paso=false;        
+        System.out.println("Ingrese el total de su boleta para efectuar el pago: $"+(int)total);                
+        validacionNro();
+        pago=nro;                        
+        while(!paso){
+            if(pago==total){                
+                paso=true;
                 break;
-            }   
+            }else if(pago<total) {
+                System.out.println("Ingrese el importe completo: $"+(int)total);  
+                pago=inputTc.nextInt();
+                continue;
+            }else{
+                vuelto=pago-total;
+                System.out.println("Su vuelto es de $"+(int)vuelto);
+                paso=true;                
+                ciclo=false;                
+                break;
+            }
+        }
+    }
+    
+    static public void descuentoEntradasDisponibles () {        
+        for(int  i = 0; i<120; i++) {
+            if(nombre.equals(nombreCliente[i])) {
+                if(i<20){
+                    nVip=nVip-1;       
+                }else if(i>20 && i<60){
+                    nPlatea=nPlatea-1;
+                }else{
+                     nGeneral=nGeneral-1;
+                }                
+            }
+        }
+    }
+    
+    static public void cambioEstadoCompradotrue() {  //cambia de estado entradas compradas
+        for(int i = 0 ; i<nombreCliente.length ; i++) {   
+            if(nombre.equals(nombreCliente[i])) {
+               comprado[i]=true;
+               valorPagado[i]=(int)total;
+            }       
+        }
+    }
+    
+    static public void cambioEstadoCompradofalse() { //enccunetra coincidencias y las borra
+        for(int i = 0 ; i<nombreCliente.length ; i++) {  
+            if(nombre.equals(nombreCliente[i])) {
+                if(i<20){
+                    nVip=nVip+1;       
+                }else if(i>20 && i<60){
+                    nPlatea=nPlatea+1;
+                }else{
+                     nGeneral=nGeneral+1;
+                }
+                comprado[i]=false;          
+                eliminarElementoLista();
+            }       
+        }
+    }
+    
+    static public void eliminarElementoLista () { //elimina elemento por igualdad, por desconocer el indice
+        for (int i = 0; i<ventas.size(); i++){
+            if(obtenerDatosCliente().equals(ventas.get(i))){
+                ventas.remove(i);
             }
                 
+        }
     }
+
+       
 }
+
+    
+
+
 
