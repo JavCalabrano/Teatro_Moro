@@ -187,10 +187,14 @@ public class Teatro_Moro {
         buscarCliente();
         if(encontrado){            
             revisarAsiento();
-            if (!encontrado){
+            if (encontrado){
+                if(comprado[nro]==true){
+                    System.out.println("Sus entradas ya estan pagadas");                    
+                }else{
                 imprimirDatosCliente();
                 System.out.println("¿Desea terminar la compra?");
                 System.out.println("Si (Y) / NO (otra tecla)");
+                }
                 inputString=inputTc.nextLine().toUpperCase();
                 if(inputString.equals("Y")){
                     procesoCompra();
@@ -198,7 +202,9 @@ public class Teatro_Moro {
                     System.out.println("Volviendo al menu principal\n");
                 }
             }else{
-                System.out.println("Sus entradas ya estan pagadas");
+                if(comprado[nro]==true){
+                    System.out.println("Sus entradas ya estan pagadas");
+                }                
             }    
         }else {
             System.out.println("Cliente no encontrado");
@@ -289,7 +295,8 @@ public class Teatro_Moro {
     static private void revisarAsiento() {
         encontrado=false;   // buscar si el asiento ya esta ocupado o reservado        
         for(int i = 0; i < codigoAsiento.length; i++){                                
-            if(codigoAsiento[i]!=null && codigoAsiento[i].equals(codigo)){                                
+            if(codigoAsiento[i]!=null && codigoAsiento[i].equals(codigo)){
+                nro=i;
                 encontrado=true;
                 break;
             }                                
