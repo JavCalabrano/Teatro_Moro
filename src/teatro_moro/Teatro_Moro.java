@@ -176,19 +176,18 @@ public class Teatro_Moro {
         System.out.println("Escoja los asientos de su preferencia");
         System.out.println("Para terminar elección solo presione Enter"); 
         ciclo=false; // dclaracion para poner en marcha el bucle de reservas        
-        do {
+        while(!ciclo){
         verificarCodigoAsiento();   // pasa aqui y reserva en primer lugar el asiento en array codigo asiento                
         if (codigo.isEmpty()) {  //verifica ingreso vacio
-            buscarCliente();
-           
+            buscarCliente();           
             if (!encontrado){  //si escogio asientos antes sigue con ciclo de compra
                 System.out.println("Volviendo menu principal");
                 break;
+                
             }else {
                 ciclo=true;
             }                         
-        }
-                       
+        }                       
         for (int j = 0 ; j < usuario.length; j++ ){
             if (nombre.equals(nombreCliente[j])){
                 boolean paso = false;
@@ -208,10 +207,14 @@ public class Teatro_Moro {
                 descuento=total*descuento;
                 usuarioDescuento[j]=(int)descuento;                    
             }                
-        }   
-        } while (!ciclo); 
-        imprimirDatosCliente();
+        } 
+        
+        } 
+        if (encontrado){
+            imprimirDatosCliente();
         procesoCompraReserva();
+        }
+        
         menu=-1;
        
     }
