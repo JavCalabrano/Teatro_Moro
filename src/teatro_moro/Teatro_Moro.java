@@ -23,14 +23,16 @@ public class Teatro_Moro {
     
      
     static String teatroNombre = "Teatro Moro", inputString, nombre;
-    static int valorGeneral=5000, valorVip=25000, valorPlatea=10000;    //valores
-    static int nGeneral=60, nVip=20, nPlatea=40;                        //numero de entradas disponibles
+    static int valorGeneral=5000, valorPalco=20000, valorVip=25000, valorPlateaAlta=15000, valorPlateaBaja=10000;    //valores
+    static int nGeneral=50, nVip=10, nPlateaBaja=20, nPlateaAlta=20, nPalco=20;                    //numero de entradas disponibles
     
     static String nombreCliente[] = new String[120]; //arreglos para almacenar datos de ventas mas permanentes    
-    static String tipoAsiento[] = new String[120];
+    static String usuario[] = new String[120];
     static String codigoAsiento[] = new String[120];
+    static String sector[] = new String[120];
     static boolean comprado[] = new boolean[120];
-    static int valorPagado[] = new int[120];
+    static int valor[] = new int[120];
+    static int usuarioDescuento[] = new int[120];
     
     static List<String> ventas = new ArrayList<>();
     
@@ -39,8 +41,8 @@ public class Teatro_Moro {
     static double total;
     
     static String codigo,  sectorTxt;
-    static int inputInt, filaNum, valor, cantidad,  pago, timerIndice;
-    static double descuento, descuentoPromo, descuentoEstudiante=0.1, descuentoTEdad=0.15, vuelto;
+    static int inputInt, filaNum, cantidad,  pago, timerIndice;
+    static double descuento, descuentoTotal, descuentoMenor=0.05, descuentoMujer=0.07, descuentoEstudiante=0.25, descuentoTEdad=0.30, vuelto;
     static char charFila;
     
     static Scanner inputTc = new Scanner(System.in);//Activar el teclado     
@@ -53,6 +55,7 @@ public class Teatro_Moro {
     public static void main(String[] args) {
             
         do{ //ciclo entero de la visita al Teatro
+            encontrado=false; //reinicio busquedas 
             System.out.println("Bienvenido a "+teatroNombre+"\n"
                     + "\n"
                     + "¿Qué desea hacer hoy?"
@@ -79,6 +82,7 @@ public class Teatro_Moro {
         } while (menu!=0);
     }
             
+            
     static private void imprimirMenu () {
         System.out.println("1. Revisar asientos disponibles\n"
             + "2. Comprar entradas\n"
@@ -101,10 +105,13 @@ public class Teatro_Moro {
     
     static private void stockDisponible(){
         System.out.println("====Entradas disponibles====\n" //Tabla de stock de entradas
-                    + "Tipo               | Valor | Disponibles"
-                    + "\n1. VIP     (A - B) | "+valorVip+" |      "+nVip  
-                    + "\n2. Platea  (C - F) | "+valorPlatea+" |      "+nPlatea
-                    + "\n3. General (G - L) |  "+valorGeneral+" |      "+nGeneral); 
+            + "Tipo                   | Valor | Disponibles"
+            + "\n1. VIP         (A)     | "+valorVip+" |      "+nVip  
+            + "\n2. Palco       (B - C) | "+valorPalco+" |      "+nPalco
+            + "\n3. Platea Alta (D - E) | "+valorPlateaAlta+" |      "+nPlateaAlta
+            + "\n4. Platea Baja (F - G) | "+valorPlateaBaja+" |      "+nPlateaBaja
+            + "\n5. General     (H - L) | "+valorGeneral+"  |      "+nGeneral); 
+        System.out.println("");
     }    
         
     static private void mapaAsientos() {
@@ -140,6 +147,7 @@ public class Teatro_Moro {
     }
     
     static public boolean inputStringVacio () {
+
         if (inputString.isEmpty()){
             return true;
         }
@@ -160,6 +168,8 @@ public class Teatro_Moro {
     }
     
     static public void casoDos () {
+        int indice;         
+        
         guardarNombre();
         mapaAsientos();
         System.out.println("");
@@ -170,16 +180,39 @@ public class Teatro_Moro {
         verificarCodigoAsiento();   // pasa aqui y reserva en primer lugar el asiento en array codigo asiento                
         if (codigo.isEmpty()) {  //verifica ingreso vacio
             buscarCliente();
+           
             if (!encontrado){  //si escogio asientos antes sigue con ciclo de compra
                 System.out.println("Volviendo menu principal");
                 break;
-            }            
+            }else {
+                ciclo=true;
+            }                         
         }
-        asignacionDescuentoEspecial();        
+        } while (!ciclo);                
+        for (int j = 0 ; j < usuario.length; j++ ){
+            if (nombre.equals(nombreCliente[j])){
+                boolean paso = false;
+                while(!paso) {
+                    System.out.println("Ingrese nombre del usuario asiento "+codigoAsiento[j]);            
+                    inputString=inputTc.nextLine();                  
+                    if (inputString.isEmpty()){
+                        continue;
+                    }
+                usuario[j]=inputString;                     
+                paso=true;
+                }
+                asignacionDescuentoEspecial();  
+                total = (j < 10 ? valorVip : j>19 && j < 30 ? valorPalco : j>29 && j < 50 ? valorPlateaAlta : j>49 && j < 70 ? valorPlateaBaja : valorGeneral);            
+                sector[j] = (j < 10 ? "Vip" : j>19 && j < 30 ? "Palco" : j>29 && j < 50 ? "Platea Alta" : j>49 && j < 70 ? "Platea Baja" : "General");            
+                valor[j]=(int)total;
+                descuento=total*descuento;
+                usuarioDescuento[j]=(int)descuento;                    
+            }                
+        }                        
         imprimirDatosCliente();
         procesoCompraReserva();
         menu=-1;
-        } while(!ciclo);
+       
     }
     
     static public void casoTres() {
@@ -229,12 +262,13 @@ public class Teatro_Moro {
                 System.out.println("Se ha reembolsado: $"+(int)total);
                 recaudacion-=total;
                 cambioEstadoCompradofalse();
-                borrarDatosCliente();                            
-            }else{
-                System.out.println("Cliente no existe");
-            }       
-        }
-    }    
+                borrarDatosCliente();                  
+            }
+        }else{
+            System.out.println("Cliente no existe");
+        }       
+    }
+        
     
     static public void casoSeis() {
         System.out.println("Binevenido a la zona de administración");
@@ -250,8 +284,8 @@ public class Teatro_Moro {
         }else{
             errorValidacion();
         }        
-    }             
-    
+    }   
+        
     static public void guardarNombre() {
         ingresarNombre();              
         total=0;
@@ -357,17 +391,35 @@ public class Teatro_Moro {
         }        
     }       
     
-    static public void asignacionDescuentoEspecial() { //sumo desuento sobre descuento
-        
+    static public void asignacionDescuentoEspecial() { //descuentos ordenados de menos a mayor para elegir el mayor descuento      
+        boolean paso=false;
+        int edad = 0; 
+        do {
+            System.out.println("Ingrese su edad");
+            inputString=inputTc.nextLine().toUpperCase();
+            validacionNro();
+            edad=nro;
+            if (edad < 0 || edad > 110){
+                errorValidacion();            
+            }else{
+                paso = true;
+            }
+        } while(!paso);
+        if (edad > 0 && edad < 18){
+            descuento=descuentoMenor;
+        }        
+        System.out.println("Si es mujer ingrese Y");
+        inputString=inputTc.nextLine().toUpperCase();
+        if (inputString.equals("Y")) {
+            descuento=descuentoMujer;
+        }
         System.out.println("Si es estudiante ingrese Y");
         inputString=inputTc.nextLine().toUpperCase();
         if (inputString.equals("Y")) {
-            descuento=descuento+descuentoEstudiante;
+            descuento=descuentoEstudiante;
         }
-        System.out.println("Si es de la tercera edad ingrese Y");
-        inputString=inputTc.nextLine().toUpperCase();
-        if (inputString.equals("Y")) {
-            descuento=descuento+descuentoTEdad;
+        if (edad >59 && edad < 110) {
+            descuento=descuentoTEdad;
         }
     }            
     
@@ -418,8 +470,8 @@ public class Teatro_Moro {
                         if(nombreCliente[i]==nombreReserva){
                             if(comprado[i]==false){  //verifica que cliente alcanzo a comprar antes de eliminar la reserva                                
                                 System.out.println("Se ha borrado la reserva de "+nombreCliente[i]);                    
-                                tipoAsiento[i]=null;
-                                valorPagado[i]=0;                                          
+                                usuario[i]=null;
+                                valor[i]=0;                                          
                                 codigoAsiento[i]=null;  
                                 nombreCliente[i]=null;                    
                             }
@@ -438,8 +490,9 @@ public class Teatro_Moro {
                 if(comprado[i]==false){                                 
                     System.out.println("Se ha borrado la compra de "+nombreCliente[i]); 
                     System.out.println("");
-                    tipoAsiento[i]=null;
-                    valorPagado[i]=0;                                          
+                    usuario[i]=null;
+                    valor[i]=0; 
+                    usuarioDescuento[i]=0;
                     codigoAsiento[i]=null;  
                     nombreCliente[i]=null;                    
                 }
@@ -466,32 +519,23 @@ public class Teatro_Moro {
         StringBuilder datos = new StringBuilder(); //constructor de String para guardar los datos
         cantidad=0;        
         total=0;
+        descuento=0;
         codigo=null;        
         datos.append("Nombre: ").append(nombre).append("\n")
                 .append("Nro Asientos: ");                
         contarAsientos();
         datos.append(cantidad).append("\n");
-        datos.append("Codigo asientos: ");
+        datos.append("Usuarios: ");
         for(int  i = 0; i<120; i++) {       //ciclo que asigna valores para el calculo de boleta
             if(nombre.equals(nombreCliente[i])) {
-                if(i<20){
-                    sectorTxt="Vip";                    
-                    valor=valorVip;
-                }else if(i>20 && i<60){
-                    sectorTxt="Platea";                    
-                    valor=valorPlatea;
-                }else{
-                    sectorTxt="General";                    
-                    valor=valorGeneral;
-                }
-                total+=valor;
-                codigo=codigoAsiento[i];
-                datos.append(codigo).append(" (").append(sectorTxt).append("), ");
+                total=total+valor[i];
+                descuento=descuento+usuarioDescuento[i];                                
+                codigo=codigoAsiento[i];                
+                datos.append(codigo).append(" (").append(usuario[i]).append(", ").append(sector[i]).append("), ");
             }
         }
         datos.append("\n");
-        datos.append("Total: $").append((int)total).append("\n");
-        descuento=total*descuento; //calculo del total de los descuentos en int
+        datos.append("Total: $").append((int)total).append("\n");        
         datos.append("Descuento aplicado: $").append((int)descuento).append("\n");
         total=total-descuento; //aplicacion del descuento
         datos.append("Costo total: $").append((int)total).append("\n")
@@ -539,10 +583,14 @@ public class Teatro_Moro {
     static public void descuentoEntradasDisponibles () {        
         for(int  i = 0; i<120; i++) {
             if(nombre.equals(nombreCliente[i])) {
-                if(i<20){
+                if(i<10){
                     nVip=nVip-1;       
-                }else if(i>20 && i<60){
-                    nPlatea=nPlatea-1;
+                }else if(i>9 && i<30){
+                    nPalco=nPalco-1;
+                }else if(i>29 && i<50){
+                    nPlateaAlta=nPlateaAlta-1;
+                }else if(i>49 && i<70){
+                    nPlateaBaja=nPlateaBaja-1;
                 }else{
                      nGeneral=nGeneral-1;
                 }                
@@ -553,8 +601,7 @@ public class Teatro_Moro {
     static public void cambioEstadoCompradotrue() {  //cambia de estado entradas compradas
         for(int i = 0 ; i<nombreCliente.length ; i++) {   
             if(nombre.equals(nombreCliente[i])) {
-               comprado[i]=true;
-               valorPagado[i]=(int)total;
+               comprado[i]=true;               
             }       
         }
     }
@@ -562,13 +609,17 @@ public class Teatro_Moro {
     static public void cambioEstadoCompradofalse() { //enccunetra coincidencias y las borra
         for(int i = 0 ; i<nombreCliente.length ; i++) {  
             if(nombre.equals(nombreCliente[i])) {
-                if(i<20){
+                if(i<10){
                     nVip=nVip+1;       
-                }else if(i>20 && i<60){
-                    nPlatea=nPlatea+1;
+                }else if(i>9 && i<30){
+                    nPalco=nPalco+1;
+                }else if(i>29 && i<50){
+                    nPlateaAlta=nPlateaAlta+1;
+                }else if(i>49 && i<70){
+                    nPlateaBaja=nPlateaBaja+1;
                 }else{
                      nGeneral=nGeneral+1;
-                }
+                }   
                 comprado[i]=false;          
                 eliminarElementoLista();
             }       
