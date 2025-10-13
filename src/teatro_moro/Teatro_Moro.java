@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Javier Calabrano
+ * @author JavCalabrano
  */
 public class Teatro_Moro {
     /**
