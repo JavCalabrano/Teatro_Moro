@@ -188,7 +188,7 @@ public class Teatro_Moro {
                 ciclo=true;
             }                         
         }
-        } while (!ciclo);                
+                       
         for (int j = 0 ; j < usuario.length; j++ ){
             if (nombre.equals(nombreCliente[j])){
                 boolean paso = false;
@@ -208,7 +208,8 @@ public class Teatro_Moro {
                 descuento=total*descuento;
                 usuarioDescuento[j]=(int)descuento;                    
             }                
-        }                        
+        }   
+        } while (!ciclo); 
         imprimirDatosCliente();
         procesoCompraReserva();
         menu=-1;
